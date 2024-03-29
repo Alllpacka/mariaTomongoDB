@@ -3,5 +3,5 @@
   <component name="Black">
     <option name="sdkName" value="Python 3.9 (mySQLToMongoDB)" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.9 (mySQLToMongoDB)" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.9 (mariaTomongoDB)" project-jdk-type="Python SDK" />
 </project>
