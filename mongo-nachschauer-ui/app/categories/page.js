@@ -1,5 +1,5 @@
-import DisplayTable from "../tableContent";
-import {columns} from "../columns";
+import DisplayTable from "../structs/tableContent";
+import {columns} from "../data/columns";
 
 export default function Home() {
 

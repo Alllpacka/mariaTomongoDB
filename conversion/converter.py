@@ -77,8 +77,8 @@ def main():
     # connect to mariadb
     try:
         conn = mariadb.connect(
-            user="converter",
-            password="converter",
+            user="root",
+            password="password",
             host="localhost",
             port=3306,
             database="w3schools"

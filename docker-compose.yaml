@@ -1,0 +1,48 @@
+version: '3'
+
+services:
+  mongodb:
+    image: mongo
+    command: mongod --bind_ip_all --auth
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    # volumes:
+    #   - mongo_data:/data/db
+    # ports:
+    #   - "27778:27778"
+
+  mariadb:
+    image: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+    # ports:
+    #   - "3306:3306"
+    volumes:
+      # - mariadb_data:/var/lib/mysql
+      - ./SQLData:/docker-entrypoint-initdb.d
+
+  data-conversion:
+    build: ./conversion
+    depends_on:
+      - mariadb
+      - mongodb
+
+  api:
+    build: ./api
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mongodb
+
+  web-application:
+    build: ./mongo-nachschauer-ui
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongodb
+      - api
+
+# volumes:
+#   mongo_data:
+#   mariadb_data:
