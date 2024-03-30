@@ -1,64 +1,68 @@
-import React, {useMemo} from "react";
-import {Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Pagination, Spinner, getKeyValue} from "@nextui-org/react";
-import useSWR from "swr";
+'use client'
 
-const fetcher = (...args) => fetch(...args).then((res) => res.json());
+import {Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Pagination} from '@nextui-org/react';
+import React, {useEffect, useState} from "react";
 
-export default function DBTable() {
+export default function DisplayTable(props) {
+    const {collection, columns} = props;
+    const [data, setData] = useState([]);
     const [page, setPage] = React.useState(1);
+    const rowsPerPage = 25;
 
-    const {data, isLoading} = useSWR(`https://swapi.py4e.com/api/people?page=${page}`, fetcher, {
-        keepPreviousData: true,
-    });
+    useEffect(() => {
+        fetchData();
+    }, []);
+    const fetchData = async () => {
+        try {
+            const res = await fetch(`http://localhost:8000/${collection}`);
+            const jsonData = await res.json();
+            setData(jsonData);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
 
-    const rowsPerPage = 10;
+    const pages = Math.ceil(data.length / rowsPerPage);
 
-    const pages = useMemo(() => {
-        return data?.count ? Math.ceil(data.count / rowsPerPage) : 0;
-    }, [data?.count, rowsPerPage]);
+    const items = React.useMemo(() => {
+        const start = (page - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
 
-    const loadingState = isLoading || data?.results.length === 0 ? "loading" : "idle";
+        return data.slice(start, end);
+    }, [page, data]);
 
-    const renderTableHeaders = () => {
-        return tableHeaders.map((item) => (
-          <TableColumn key={item}>{item}</TableColumn>
-        ));
-    }
+    const renderCell = React.useCallback((user, columnKey) => {
+        return user[columnKey];
+    }, []);
 
     return (
-        <Table
-            aria-label="Example table with client async pagination"
-            bottomContent={
-                pages > 0 ? (
-                    <div className="flex w-full justify-center">
-                        <Pagination
-                            isCompact
-                            showControls
-                            showShadow
-                            color="primary"
-                            page={page}
-                            total={pages}
-                            onChange={(page) => setPage(page)}
-                        />
-                    </div>
-                ) : null
-            }
-
-        >
-            <TableHeader>
-                {renderTableHeaders}
-            </TableHeader>
-            <TableBody
-                items={data?.results ?? []}
-                loadingContent={<Spinner />}
-                loadingState={loadingState}
-            >
-                {(item) => (
-                    <TableRow key={item?.name}>
-                        {(columnKey) => <TableCell>{getKeyValue(item, columnKey)}</TableCell>}
-                    </TableRow>
-                )}
-            </TableBody>
-        </Table>
-    );
+        <div className="flex w-full justify-center">
+            <Table isStriped topContent={
+                <div className="flex w-full justify-center">
+                    <Pagination
+                        isCompact
+                        showControls
+                        showShadow
+                        color="primary"
+                        page={page}
+                        total={pages}
+                        onChange={(page) => setPage(page)}
+                    />
+                </div>
+            }>
+                <TableHeader columns={columns}>
+                    {(column) => (
+                        <TableColumn key={column.name}>{column.name}</TableColumn>
+                    )}
+                </TableHeader>
+                <TableBody emptyContent={"No data"} items={items}>
+                    {(item) => (
+                        <TableRow key={self.crypto.randomUUID()}>
+                            {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+                        </TableRow>
+                    )}
+                </TableBody>
+            </Table>
+        </div>
+    )
 }
